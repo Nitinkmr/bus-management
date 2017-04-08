@@ -1,0 +1,29 @@
+
+<div class="container">
+  <div class="row">
+      <div class="panel panel-default">
+        
+            {{error}}
+            
+            {% for bus in Buses%}
+              
+            <ul>
+                <li>
+                  <a href = '/BusManage/{{bus.busNum}}/'>
+                    <tr>
+                       <td class="col-xs-8">{{bus.rate}}</td>  
+                       <td class="col-xs-8">{{bus.arrivalTime}}</td>
+                       <td class="col-xs-8">{{bus.departureTime}}</td>
+                       <td class="col-xs-8">{{bus.busNum}}</td>
+                    </tr>
+                  </a>
+                </li>
+            </ul>
+            {% endfor %}
+
+            
+          </tbody>
+        </table>
+      </div>
+  </div>
+</div>

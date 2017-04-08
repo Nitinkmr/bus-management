@@ -1,0 +1,24 @@
+{% load static %}
+{% load bootstrap %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>BusManage</title>
+<link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css  "%}"> 	
+</head>
+
+<body>
+
+<div class="dropdown">
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <button type="submit" class="btn btn-default" value="Submit">Submit</button>
+</form>
+</div>
+
+</body>
+</html>
+
+
