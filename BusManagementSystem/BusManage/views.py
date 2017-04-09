@@ -8,6 +8,7 @@ import datetime
 from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.utils.crypto import get_random_string
+from random import randint
 # Create your views here.
 
 api_key = "AIzaSyCa1Oko5VirJeqaSpC7GXGeFTU5vBzS5a8"
@@ -98,6 +99,7 @@ def displayBuses(request):
 	date = request.session.get('date')
 
 	buses = Buses.objects.all().filter(origin=origin,destination=destination,date=date)
+	print buses
 	if len(buses)>0:
 		
 		result = []
@@ -106,7 +108,7 @@ def displayBuses(request):
 					"rate": Bus.price,
 					"departureTime":Bus.departureTime,
 					"arrivalTime":Bus.arrivalTime,
-					"BusNum":Bus.BusNum
+					"busNum":Bus.busNum
 			}
 
 			result.append(temp)
@@ -123,7 +125,7 @@ def displayBuses(request):
 			    "passengers": {
 			      "adultCount": 1
 			    },
-			    "solutions": 5,
+			    "solutions": 3,
 			    "refundable": False
 			  }
 			}
@@ -156,16 +158,17 @@ def displayBuses(request):
 					"rate": Bus['saleTotal'],
 					"departureTime":Bus['slice'][0]['segment'][0]['leg'][0]['departureTime'],
 					"arrivalTime":Bus['slice'][0]['segment'][0]['leg'][0]['arrivalTime'],
-					"BusNum":Bus['slice'][0]['segment'][0]['flight']['number']
+					"busNum":Bus['slice'][0]['segment'][0]['flight']['number']
 			}
 
+			print temp
 			try:
 				
-				new_Bus = Buses(origin=request.session.get('origin'),destination=request.session.get('destination'),date=request.session.get('date'),BusNum=temp['BusNum'],price=temp['rate'],arrivalTime=temp['arrivalTime'],departureTime = temp['departureTime'])
+				new_Bus = Buses(origin=request.session.get('origin'),destination=request.session.get('destination'),date=request.session.get('date'),busNum=temp['busNum'],price=temp['rate'],arrivalTime=temp['arrivalTime'],departureTime = temp['departureTime'],companyName=Companys[x])
 				new_Bus.save()
 				result.append(temp)
 				
-				form = OperatedBy(BusNum=new_Bus,registrationNumber=Companys[x],dt=new_Bus)
+				form = OperatedBy(busNum=new_Bus,registrationNumber=Companys[x],dt=new_Bus)
 				form.save()
 				x = x+1
 			except Exception as e:
@@ -173,23 +176,23 @@ def displayBuses(request):
 	
 	return render(request, 'displayBuses.html', {'Buses': result})
 	
-def displaySelectedBus(request,BusNum):
-	#print BusNum
-	Bus = Buses.objects.all().filter(BusNum=BusNum)
+def displaySelectedBus(request,busNum):
+	#print busNum
+	Bus = Buses.objects.all().filter(busNum=busNum)
 	result = {
 				"rate": Bus[0].price,
 				"departureTime":Bus[0].departureTime,
 				"arrivalTime":Bus[0].arrivalTime,
-				"BusNum":Bus[0].BusNum		
+				"busNum":Bus[0].busNum		
 	}
-	request.session['BusNum'] = BusNum
-	return render(request, 'displaySelectedBus.html', {'Bus': result})
+	request.session['busNum'] = busNum
+	return render(request, 'displaySelectedBus.html', {'bus': result})
 	
 def ticket(request):
 
-	BusNum = request.session.get('BusNum')
+	busNum = request.session.get('busNum')
 	passengerForm = request.session.get('passengerForm')
-	Bus =  Buses.objects.all().filter(BusNum=BusNum)
+	Bus =  Buses.objects.all().filter(busNum=busNum)
 	pnr = get_random_string(length=6).upper()
 	
 	
@@ -200,7 +203,7 @@ def ticket(request):
 
 		#save IssuedFor#
 	
-		form = IssuedFor(PNR=newTicket,BusNum=Bus[0])
+		form = IssuedFor(PNR=newTicket,busNum=Bus[0])
 		form.save()
 		#passenger = Passenger.objects.all().filter(PhoneNumber=request.session.get("phoneNumber"))
 
@@ -228,7 +231,7 @@ def ticket(request):
 		
 	except Exception as e:
 		print(e)
-	return render(request, 'displayTicket.html', {'BusNum': BusNum,'pnr':pnr,'price':Bus[0].price})
+	return render(request, 'displayTicket.html', {'busNum': busNum,'pnr':pnr,'price':Bus[0].price})
 	
 def numPassenger(request):
 
